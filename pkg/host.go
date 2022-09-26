@@ -2,10 +2,14 @@ package pkg
 
 import (
 	"context"
-	"crypto"
 	"errors"
-
+	"fmt"
+	"github.com/libp2p/go-libp2p-core/crypto"
+	"github.com/libp2p/go-libp2p-core/peer"
+	ma "github.com/multiformats/go-multiaddr"
 	log "github.com/sirupsen/logrus"
+	"sync"
+	"sync/atomic"
 
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-core/host"
@@ -19,11 +23,17 @@ type Host struct {
 	DHT *kaddht.IpfsDHT
 }
 
-func new_host(ctx context.Context, priv_key crypto.PrivateKey) (*Host, error) {
+func new_host(ctx context.Context, priv_key crypto.PrivKey, ip string, port string) (*Host, error) {
+	log.Infof("Creating new host")
+	multiaddress, err := ma.NewMultiaddr(fmt.Sprintf("/ipv4/%s/tcp/%s", ip, port))
+	if err != nil {
+		return nil, err
+	}
 
-	log.Debug("Creating new host")
 	var dht *kaddht.IpfsDHT
 	h, err := libp2p.New(
+		libp2p.ListenAddrs(multiaddress),
+		libp2p.Identity(priv_key),
 		libp2p.Routing(func(h host.Host) (routing.PeerRouting, error) {
 			dht, err := kaddht.New(ctx, h)
 			return dht, err
@@ -31,12 +41,6 @@ func new_host(ctx context.Context, priv_key crypto.PrivateKey) (*Host, error) {
 
 	if err != nil {
 		panic(err)
-	}
-
-	for _, p := range kaddht.GetDefaultBootstrapPeerAddrInfos() {
-		if err = h.Connect(ctx, p); err != nil {
-			panic(err)
-		}
 	}
 
 	if dht == nil {
@@ -49,6 +53,36 @@ func new_host(ctx context.Context, priv_key crypto.PrivateKey) (*Host, error) {
 		DHT:  dht,
 	}
 
-	log.Debugf("New peer with ID: %s", h.ID().String())
+	log.Infof("New local node with ID: %s", h.ID().String())
 	return new_host, nil
+}
+
+func (h *Host) bootstrap(ctx context.Context) error {
+	log.Infof("Trying to initiliaze nodes with bootstraps")
+	successful_connections := int64(0)
+	var wg sync.WaitGroup
+	//IPFS bootstrap peers
+	for _, p := range kaddht.GetDefaultBootstrapPeerAddrInfos() {
+		log.Infof("Connecting to bootstrap peer %s", p.ID.String())
+		wg.Add(1)
+		go func(bootstrap_node peer.AddrInfo) {
+			defer wg.Done()
+			if err := h.Connect(ctx, p); err != nil {
+				log.Errorf("unable to connect to: %s", p.String())
+			} else {
+				atomic.AddInt64(&successful_connections, 1)
+			}
+		}(p)
+	}
+	wg.Wait()
+	if successful_connections > 0 {
+		log.Infof("%d of successful connections", successful_connections)
+	} else {
+		return errors.New("Error trying to connect to bootstrap peers")
+	}
+	return nil
+}
+
+func (h *Host) close() error {
+	return h.Close()
 }
