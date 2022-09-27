@@ -35,6 +35,8 @@ func new_host(ctx context.Context, priv_key crypto.PrivKey, ip string, port stri
 		libp2p.ListenAddrs(multiaddress),
 		libp2p.Identity(priv_key),
 		libp2p.Routing(func(h host.Host) (routing.PeerRouting, error) {
+			//TODO missing kaddht.MessageSenderImpl(msgSender.init) from options
+			//TODO missing kaddht.NetworkSizeHook(newHost.SaveNetworkSizeEstimate) from options
 			dht, err := kaddht.New(ctx, h)
 			return dht, err
 		}))
@@ -81,6 +83,10 @@ func (h *Host) bootstrap(ctx context.Context) error {
 		return errors.New("Error trying to connect to bootstrap peers")
 	}
 	return nil
+}
+
+func (h *Host) peer_id() string {
+	return h.ID().String()
 }
 
 func (h *Host) close() error {
