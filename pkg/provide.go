@@ -8,7 +8,7 @@ import (
 func StartProvidingEstimator(h *Host) error {
 	//ctx := context.Background()
 
-	cid, err := generate_random_cid()
+	cid, err := GenerateRandomCid()
 	if err != nil {
 		return errors.Wrap(err, " trying to generate new cid")
 	}

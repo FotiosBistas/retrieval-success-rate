@@ -6,17 +6,17 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-var Local_ip = "127.0.0.1"
-var Local_port = "8934"
+var LocalIp = "127.0.0.1"
+var LocalPort = "8934"
 
 var Default_config = Config{
-	Log_level:      "info",
-	Number_of_cids: 15,
+	LogLevel:     "info",
+	NumberOfCids: 15,
 }
 
 type Config struct {
-	Log_level      string `json:"log-level"`
-	Number_of_cids int    `json:"cid-number"`
+	LogLevel     string `json:"log-level"`
+	NumberOfCids int    `json:"cid-number"`
 }
 
 func NewConfig(Cctx *cli.Context) (*Config, error) {
@@ -24,14 +24,14 @@ func NewConfig(Cctx *cli.Context) (*Config, error) {
 	switch {
 	case Cctx.Command.Name == "run_optimistic_provide":
 		if Cctx.IsSet("log-level") {
-			c.Log_level = Cctx.String("log-level")
+			c.LogLevel = Cctx.String("log-level")
 		} else {
-			c.Log_level = Default_config.Log_level
+			c.LogLevel = Default_config.LogLevel
 		}
 		if Cctx.IsSet("cid-number") {
-			c.Number_of_cids = Cctx.Int("cid-number")
+			c.NumberOfCids = Cctx.Int("cid-number")
 		} else {
-			c.Number_of_cids = Default_config.Number_of_cids
+			c.NumberOfCids = Default_config.NumberOfCids
 		}
 	case Cctx.Command.Name == "run_cid_hoarder":
 		log.Info("run cid hoarder is not implemented yet")

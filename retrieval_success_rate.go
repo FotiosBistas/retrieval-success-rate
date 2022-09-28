@@ -57,11 +57,11 @@ func provide(Cctx *cli.Context) error {
 		return errors.Wrap(err, " error while trying to generate config")
 	}
 
-	log.Debugf("Number of cids to provide is: %d", new_config_instance.Number_of_cids)
-	log.Debugf("Log level is set to: %s", new_config_instance.Log_level)
+	log.Debugf("Number of cids to provide is: %d", new_config_instance.NumberOfCids)
+	log.Debugf("Log level is set to: %s", new_config_instance.LogLevel)
 	//what is this?
 	go func() {
-		profAddr := config.Local_ip + ":" + config.Local_port
+		profAddr := config.LocalIp + ":" + config.LocalPort
 		log.Debugf("Initializing http listen and serve: %s", profAddr)
 		err := http.ListenAndServe(profAddr, nil)
 		if err != nil {
@@ -69,7 +69,7 @@ func provide(Cctx *cli.Context) error {
 		}
 	}()
 	//TODO is generating priv key needed?
-	host, err := pkg.NewHost(Cctx.Context, config.Local_ip, config.Local_port)
+	host, err := pkg.NewHost(Cctx.Context, config.LocalIp, config.LocalPort)
 	if err != nil {
 		return errors.Wrap(err, " error while trying to create host")
 	}
@@ -77,7 +77,7 @@ func provide(Cctx *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, " error while bootstraping the host")
 	}
-	for i := 0; i < new_config_instance.Number_of_cids; i++ {
+	for i := 0; i < new_config_instance.NumberOfCids; i++ {
 		pkg.StartProvidingEstimator(host)
 	}
 

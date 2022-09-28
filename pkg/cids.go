@@ -8,7 +8,7 @@ import (
 	"math/rand"
 )
 
-func generate_random_cid() (cid.Cid, error) {
+func GenerateRandomCid() (cid.Cid, error) {
 
 	content := make([]byte, 1024)
 
