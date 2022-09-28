@@ -2,19 +2,17 @@ package pkg
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"github.com/libp2p/go-libp2p-core/crypto"
+	"github.com/libp2p/go-libp2p"
+	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/peer"
+	kaddht "github.com/libp2p/go-libp2p-kad-dht"
+	"github.com/libp2p/go-libp2p/core/routing"
 	ma "github.com/multiformats/go-multiaddr"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"sync"
 	"sync/atomic"
-
-	"github.com/libp2p/go-libp2p"
-	"github.com/libp2p/go-libp2p-core/host"
-	kaddht "github.com/libp2p/go-libp2p-kad-dht"
-	"github.com/libp2p/go-libp2p/core/routing"
 )
 
 type Host struct {
@@ -23,7 +21,7 @@ type Host struct {
 	DHT *kaddht.IpfsDHT
 }
 
-func new_host(ctx context.Context, priv_key crypto.PrivKey, ip string, port string) (*Host, error) {
+func NewHost(ctx context.Context, ip string, port string) (*Host, error) {
 	log.Infof("Creating new host")
 	multiaddress, err := ma.NewMultiaddr(fmt.Sprintf("/ipv4/%s/tcp/%s", ip, port))
 	if err != nil {
@@ -33,7 +31,6 @@ func new_host(ctx context.Context, priv_key crypto.PrivKey, ip string, port stri
 	var dht *kaddht.IpfsDHT
 	h, err := libp2p.New(
 		libp2p.ListenAddrs(multiaddress),
-		libp2p.Identity(priv_key),
 		libp2p.Routing(func(h host.Host) (routing.PeerRouting, error) {
 			//TODO missing kaddht.MessageSenderImpl(msgSender.init) from options
 			//TODO missing kaddht.NetworkSizeHook(newHost.SaveNetworkSizeEstimate) from options
@@ -42,11 +39,7 @@ func new_host(ctx context.Context, priv_key crypto.PrivKey, ip string, port stri
 		}))
 
 	if err != nil {
-		panic(err)
-	}
-
-	if dht == nil {
-		return nil, errors.New("error - no IPFS dht server has been initialized")
+		return nil, errors.Wrap(err, " while creating libp2p node or dht")
 	}
 
 	new_host := &Host{
@@ -59,7 +52,7 @@ func new_host(ctx context.Context, priv_key crypto.PrivKey, ip string, port stri
 	return new_host, nil
 }
 
-func (h *Host) bootstrap(ctx context.Context) error {
+func (h *Host) Bootstrap(ctx context.Context) error {
 	log.Infof("Trying to initiliaze nodes with bootstraps")
 	successful_connections := int64(0)
 	var wg sync.WaitGroup
@@ -67,14 +60,14 @@ func (h *Host) bootstrap(ctx context.Context) error {
 	for _, p := range kaddht.GetDefaultBootstrapPeerAddrInfos() {
 		log.Infof("Connecting to bootstrap peer %s", p.ID.String())
 		wg.Add(1)
-		go func(bootstrap_node peer.AddrInfo) {
+		go func(bootstrap_node *peer.AddrInfo) {
 			defer wg.Done()
 			if err := h.Connect(ctx, p); err != nil {
 				log.Errorf("unable to connect to: %s", p.String())
 			} else {
 				atomic.AddInt64(&successful_connections, 1)
 			}
-		}(p)
+		}(&p)
 	}
 	wg.Wait()
 	if successful_connections > 0 {
@@ -85,10 +78,10 @@ func (h *Host) bootstrap(ctx context.Context) error {
 	return nil
 }
 
-func (h *Host) peer_id() string {
+func (h *Host) PeerId() string {
 	return h.ID().String()
 }
 
-func (h *Host) close() error {
+func (h *Host) Close() error {
 	return h.Close()
 }
