@@ -5,7 +5,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func startProvidingEstimator(h *Host) error {
+func StartProvidingEstimator(h *Host) error {
 	//ctx := context.Background()
 
 	cid, err := generate_random_cid()
