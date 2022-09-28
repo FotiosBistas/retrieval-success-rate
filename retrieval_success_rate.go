@@ -1,8 +1,9 @@
-package retrieval_success_rate
+package main
 
 import (
 	"context"
 	"github.com/FotiosBistas/retrieval-success-rate/config"
+	"github.com/FotiosBistas/retrieval-success-rate/pkg"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	cli "github.com/urfave/cli/v2"
@@ -11,29 +12,34 @@ import (
 )
 
 var run_optimistic_provide = &cli.Command{
-	Name:   "optimistic_provide",
+	Name:   "run_optimistic_provide",
 	Usage:  "starts providing cids to the network using optimistic provide",
 	Action: provide,
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:  "log-level",
 			Usage: "log level [debug,warn,info,error]",
-			Value: config.Default_config.Log_level,
 		},
 		&cli.IntFlag{
 			Name:  "cid-number",
 			Usage: "number of cids to provide",
-			Value: config.Default_config.Number_of_cids,
 		},
 	},
 }
 
+var run_cid_hoarder = &cli.Command{
+	Name:  "run_cid_hoarder",
+	Usage: "starts pinging the providers of the cids in order to gather information about them",
+}
+
 func main() {
+	log.Info("Starting retrieval success rate")
 	retrieval_success_rate := cli.App{
-		Name:  "retrieval_succes_rate",
-		Usage: "publishing data using dennis-tra optimistic-provide and measuring their retrieval success rate",
+		Name:  "retrieval_success_rate",
+		Usage: "publishing data using dennis-tra optimistic-provide and measuring their retrieval success rate using cortze's cid hoarder",
 		Commands: []*cli.Command{
 			run_optimistic_provide,
+			run_cid_hoarder,
 		},
 	}
 
@@ -44,12 +50,15 @@ func main() {
 }
 
 func provide(Cctx *cli.Context) error {
-
-	new_config, err := config.NewConfig(Cctx)
+	log.Info("Starting the provide process")
+	new_config_instance, err := config.NewConfig(Cctx)
 
 	if err != nil {
 		return errors.Wrap(err, " error while trying to generate config")
 	}
+
+	log.Debugf("Number of cids to provide is: %d", new_config_instance.Number_of_cids)
+	log.Debugf("Log level is set to: %s", new_config_instance.Log_level)
 	//what is this?
 	go func() {
 		profAddr := config.Local_ip + ":" + config.Local_port
@@ -59,6 +68,18 @@ func provide(Cctx *cli.Context) error {
 			log.Errorf("Error initiliazing prometheus at %s with error %s", profAddr, err.Error())
 		}
 	}()
+	//TODO is generating priv key needed?
+	host, err := pkg.New_host(Cctx.Context, config.Local_ip, config.Local_port)
+	if err != nil {
+		return errors.Wrap(err, " error while trying to create host")
+	}
+	err = host.Bootstrap(Cctx.Context)
+	if err != nil {
+		return errors.Wrap(err, " error while bootstraping the host")
+	}
+	for i := 0; i < new_config_instance.Number_of_cids; i++ {
+		pkg.StartProvidingEstimator(host)
+	}
 
 	return nil
 }
