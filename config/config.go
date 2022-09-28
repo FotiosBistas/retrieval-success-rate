@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 )
 
@@ -21,15 +22,21 @@ type Config struct {
 func NewConfig(Cctx *cli.Context) (*Config, error) {
 	c := &Config{}
 	switch {
-	case Cctx.Command.Name == "optimistic_provide":
+	case Cctx.Command.Name == "run_optimistic_provide":
 		if Cctx.IsSet("log-level") {
 			c.Log_level = Cctx.String("log-level")
+		} else {
+			c.Log_level = Default_config.Log_level
 		}
 		if Cctx.IsSet("cid-number") {
 			c.Number_of_cids = Cctx.Int("cid-number")
+		} else {
+			c.Number_of_cids = Default_config.Number_of_cids
 		}
+	case Cctx.Command.Name == "run_cid_hoarder":
+		log.Info("run cid hoarder is not implemented yet")
 	default:
-		return nil, errors.New("Unknown command found")
+		return nil, errors.New("unknown command found")
 	}
 	return c, nil
 }
