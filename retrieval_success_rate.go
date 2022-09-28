@@ -69,7 +69,7 @@ func provide(Cctx *cli.Context) error {
 		}
 	}()
 	//TODO is generating priv key needed?
-	host, err := pkg.New_host(Cctx.Context, config.Local_ip, config.Local_port)
+	host, err := pkg.NewHost(Cctx.Context, config.Local_ip, config.Local_port)
 	if err != nil {
 		return errors.Wrap(err, " error while trying to create host")
 	}
