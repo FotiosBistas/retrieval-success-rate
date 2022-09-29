@@ -69,7 +69,7 @@ func provide(Cctx *cli.Context) error {
 		}
 	}()
 	//TODO is generating priv key needed?
-	host, err := pkg.NewHost(Cctx.Context, config.LocalIp, config.LocalPort)
+	host, err := pkg.NewHost(Cctx.Context, config.LocalIp2, config.LocalPort2)
 	if err != nil {
 		return errors.Wrap(err, " error while trying to create host")
 	}
@@ -77,8 +77,18 @@ func provide(Cctx *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, " error while bootstraping the host")
 	}
+	error_count := 0
 	for i := 0; i < new_config_instance.NumberOfCids; i++ {
-		pkg.StartProvidingEstimator(host)
+		err := pkg.StartProvidingEstimator(host)
+		if err != nil {
+			error_count = error_count + 1
+			log.Errorf("unable to provide cid: %d", i)
+		}
+		log.Debugf("provided %d cid", i)
+	}
+
+	if error_count == new_config_instance.NumberOfCids {
+		return errors.New("was unable to provide any cids to the network")
 	}
 
 	return nil

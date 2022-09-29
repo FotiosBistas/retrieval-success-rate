@@ -7,8 +7,10 @@ import (
 )
 
 var LocalIp = "127.0.0.1"
-var LocalPort = "8934"
+var LocalPort = "3384"
 
+var LocalIp2 = "0.0.0.0"
+var LocalPort2 = "3456"
 var Default_config = Config{
 	LogLevel:     "info",
 	NumberOfCids: 15,

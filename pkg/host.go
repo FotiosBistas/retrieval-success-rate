@@ -23,7 +23,7 @@ type Host struct {
 
 func NewHost(ctx context.Context, ip string, port string) (*Host, error) {
 	log.Infof("Creating new host")
-	multiaddress, err := ma.NewMultiaddr(fmt.Sprintf("/ipv4/%s/tcp/%s", ip, port))
+	multiaddress, err := ma.NewMultiaddr(fmt.Sprintf("/ip4/%s/tcp/%s", ip, port))
 	if err != nil {
 		return nil, err
 	}
