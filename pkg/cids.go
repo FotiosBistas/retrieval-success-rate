@@ -27,6 +27,6 @@ func GenerateRandomCid() (cid.Cid, error) {
 	if err != nil {
 		return cid.Cid{}, errors.Wrap(err, " summing the content")
 	}
-	log.Info("New cid %s", new_cid.String())
+	log.Infof("New cid %s", new_cid.String())
 	return new_cid, nil
 }

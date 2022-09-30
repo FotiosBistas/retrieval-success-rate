@@ -12,10 +12,10 @@ func StartProvidingEstimator(h *Host) error {
 	if err != nil {
 		return errors.Wrap(err, " trying to generate new cid")
 	}
-	log.Info("Start providing content estimator for %s", cid.String())
+	log.Infof("Start providing content estimator for %s", cid.String())
 	//TODO provide Estimator is missing from dht
 	//err = h.dht.ProvideEstimator(ctx, cid)
-	log.Info("Done providing content estimator for cid %s", cid.String())
+	log.Infof("Done providing content estimator for cid %s", cid.String())
 	if err != nil {
 		return errors.Wrap(err, " when providing cid")
 	}

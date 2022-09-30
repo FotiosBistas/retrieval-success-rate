@@ -42,7 +42,6 @@ func main() {
 			run_cid_hoarder,
 		},
 	}
-
 	if err := retrieval_success_rate.RunContext(context.Background(), os.Args); err != nil {
 		log.Errorf("An error occured while trying to run the app: %v", err)
 		os.Exit(1)
@@ -70,6 +69,14 @@ func provide(Cctx *cli.Context) error {
 	}()
 	//TODO is generating priv key needed?
 	host, err := pkg.NewHost(Cctx.Context, config.LocalIp2, config.LocalPort2)
+
+	defer func(host *pkg.Host) {
+		err := host.Close()
+		if err != nil {
+			log.Errorf("error while trying to shut down host")
+		}
+	}(host)
+
 	if err != nil {
 		return errors.Wrap(err, " error while trying to create host")
 	}
