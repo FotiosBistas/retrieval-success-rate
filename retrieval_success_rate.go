@@ -9,6 +9,7 @@ import (
 	"os"
 	"retrieval-success-rate/config"
 	"retrieval-success-rate/pkg"
+	"time"
 )
 
 var run_optimistic_provide = &cli.Command{
@@ -89,15 +90,19 @@ func provide(Cctx *cli.Context) error {
 
 	error_count := 0
 	//force the refresh of all buckets
-	//<-host.DHT.ForceRefresh()
+	<-host.DHT.ForceRefresh()
 
 	for i := 0; i < new_config_instance.NumberOfCids; i++ {
+		start := time.Now()
 		err := pkg.StartProvidingEstimator(Cctx.Context, host)
 		if err != nil {
 			error_count = error_count + 1
-			log.Errorf("unable to provide cid: %d", i)
+			log.Errorf("unable to provide cid: %d due to error: %s", i, err)
+		} else {
+			t := time.Now()
+			time.Now()
+			log.Infof("provided %d cid in %s time", t.Sub(start).String())
 		}
-		log.Debugf("provided %d cid", i)
 	}
 
 	if error_count == new_config_instance.NumberOfCids {
