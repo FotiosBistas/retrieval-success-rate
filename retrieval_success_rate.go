@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
-	"github.com/FotiosBistas/retrieval-success-rate/config"
-	"github.com/FotiosBistas/retrieval-success-rate/pkg"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	cli "github.com/urfave/cli/v2"
 	"net/http"
 	"os"
+	"retrieval-success-rate/config"
+	"retrieval-success-rate/pkg"
 )
 
 var run_optimistic_provide = &cli.Command{
@@ -52,6 +52,8 @@ func provide(Cctx *cli.Context) error {
 	log.Info("Starting the provide process")
 	new_config_instance, err := config.NewConfig(Cctx)
 
+	log.SetLevel(config.ParseLogLevel(new_config_instance.LogLevel))
+
 	if err != nil {
 		return errors.Wrap(err, " error while trying to generate config")
 	}
@@ -84,9 +86,13 @@ func provide(Cctx *cli.Context) error {
 	if err != nil {
 		return errors.Wrap(err, " error while bootstraping the host")
 	}
+
 	error_count := 0
+	//force the refresh of all buckets
+	//<-host.DHT.ForceRefresh()
+
 	for i := 0; i < new_config_instance.NumberOfCids; i++ {
-		err := pkg.StartProvidingEstimator(host)
+		err := pkg.StartProvidingEstimator(Cctx.Context, host)
 		if err != nil {
 			error_count = error_count + 1
 			log.Errorf("unable to provide cid: %d", i)

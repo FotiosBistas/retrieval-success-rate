@@ -1,4 +1,4 @@
-module github.com/FotiosBistas/retrieval-success-rate
+module retrieval-success-rate
 
 go 1.17
 
