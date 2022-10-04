@@ -2,7 +2,7 @@ package config
 
 import "github.com/sirupsen/logrus"
 
-func parse_log_level(level string) logrus.Level {
+func ParseLogLevel(level string) logrus.Level {
 	switch level {
 	case "trace":
 		return logrus.TraceLevel
