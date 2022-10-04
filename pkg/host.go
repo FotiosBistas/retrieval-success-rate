@@ -40,7 +40,7 @@ func NewHost(ctx context.Context, ip string, port string) (*Host, error) {
 		libp2p.DefaultTransports,
 		libp2p.Routing(func(h host.Host) (routing.PeerRouting, error) {
 			var err error
-			dht, err := kaddht.New(ctx, h,
+			dht, err = kaddht.New(ctx, h,
 				kaddht.Mode(kaddht.ModeClient),
 			)
 			return dht, err
