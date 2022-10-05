@@ -101,7 +101,7 @@ func provide(Cctx *cli.Context) error {
 		} else {
 			t := time.Now()
 			time.Now()
-			log.Infof("provided %d cid in %s time", t.Sub(start).String())
+			log.Infof("provided %d cid in %s time", i, t.Sub(start).String())
 		}
 	}
 
