@@ -1,0 +1,4 @@
+[submodule "go-libp2p-kad-dht1"]
+	path = go-libp2p-kad-dht1
+	url = https://github.com/FotiosBistas/go-libp2p-kad-dht.git
+	branch = ProvidersFile
