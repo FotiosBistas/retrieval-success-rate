@@ -2,14 +2,15 @@ package main
 
 import (
 	"context"
-	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
-	cli "github.com/urfave/cli/v2"
 	"net/http"
 	"os"
 	"retrieval-success-rate/config"
 	"retrieval-success-rate/pkg"
 	"time"
+
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
+	cli "github.com/urfave/cli/v2"
 )
 
 var run_optimistic_provide = &cli.Command{
@@ -53,6 +54,13 @@ func provide(Cctx *cli.Context) error {
 	log.Info("Starting the provide process")
 	new_config_instance, err := config.NewConfig(Cctx)
 
+	file, err := config.ParseLogOutput("text-file")
+
+	if err != nil {
+		return err
+	}
+
+	log.SetOutput(file)
 	log.SetLevel(config.ParseLogLevel(new_config_instance.LogLevel))
 
 	if err != nil {
