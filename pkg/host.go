@@ -3,6 +3,7 @@ package pkg
 import (
 	"context"
 	"fmt"
+
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/peer"
@@ -11,9 +12,10 @@ import (
 	ma "github.com/multiformats/go-multiaddr"
 	"github.com/pkg/errors"
 
-	log "github.com/sirupsen/logrus"
 	"sync"
 	"sync/atomic"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type Host struct {
@@ -37,6 +39,7 @@ func NewHost(ctx context.Context, ip string, port string) (*Host, error) {
 		libp2p.ListenAddrs(multiaddress),
 		libp2p.EnableAutoRelay(),
 		libp2p.EnableNATService(),
+		libp2p.UserAgent("optimistic-provide-host"),
 		libp2p.DefaultTransports,
 		libp2p.Routing(func(h host.Host) (routing.PeerRouting, error) {
 			var err error
