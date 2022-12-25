@@ -1,0 +1,10 @@
+GOCC=go
+BIN="./build/retrieval-success-rate"
+GIT_SUBM=git submodule
+
+build: 
+	$(GOCC) build -o $(BIN)
+
+dependencies: 
+	$(GIT_SUBM) update --init
+	cd go-libp2p-kad-dht && git checkout origin/ProvidersFile
