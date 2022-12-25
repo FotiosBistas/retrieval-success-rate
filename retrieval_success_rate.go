@@ -102,7 +102,7 @@ func provide(Cctx *cli.Context) error {
 
 	for i := 0; i < new_config_instance.NumberOfCids; i++ {
 		start := time.Now()
-		err := pkg.StartProvidingEstimator(Cctx.Context, host)
+		err := pkg.StartProvidingEstimator(Cctx.Context, host, i)
 		if err != nil {
 			error_count = error_count + 1
 			log.Errorf("unable to provide cid: %d due to error: %s", i, err)
