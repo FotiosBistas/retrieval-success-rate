@@ -15,6 +15,14 @@ import (
 	cli "github.com/urfave/cli/v2"
 )
 
+//A container for the encapsulated struct.
+//
+//File containts a json array of provider records.
+//[{ProviderRecord1},{ProviderRecord2},{ProviderRecord3}]
+type ProviderRecords struct {
+	EncapsulatedJSONProviderRecords []EncapsulatedJSONProviderRecord `json:"ProviderRecords"`
+}
+
 //This struct will be used to create,read and store the encapsulated data necessary for reading the
 //provider records.
 type EncapsulatedJSONProviderRecord struct {
@@ -126,7 +134,7 @@ func provide(Cctx *cli.Context) error {
 		}
 	}
 
-	data, err := json.Marshal(EncapsulatedJSONProviderRecord{})
+	data, err := json.Marshal(ProviderRecords{})
 	if err != nil {
 		log.Errorf("Error marshalling trackableCid: %s", err)
 	}
