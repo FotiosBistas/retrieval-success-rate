@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"net/http"
 	"os"
 	"retrieval-success-rate/config"
@@ -12,6 +14,17 @@ import (
 	log "github.com/sirupsen/logrus"
 	cli "github.com/urfave/cli/v2"
 )
+
+//This struct will be used to create,read and store the encapsulated data necessary for reading the
+//provider records.
+type EncapsulatedJSONProviderRecord struct {
+	ID          string   `json:"PeerID"`
+	CID         string   `json:"ContentID"`
+	Creator     string   `json:"Creator"`
+	ProvideTime string   `json:"ProvideTime"`
+	UserAgent   string   `json:"UserAgent"`
+	Addresses   []string `json:"PeerMultiaddresses"`
+}
 
 var run_optimistic_provide = &cli.Command{
 	Name:   "run_optimistic_provide",
@@ -111,6 +124,20 @@ func provide(Cctx *cli.Context) error {
 			time.Now()
 			log.Infof("provided %d cid in %s time", i, t.Sub(start).String())
 		}
+	}
+
+	data, err := json.Marshal(EncapsulatedJSONProviderRecord{})
+	if err != nil {
+		log.Errorf("Error marshalling trackableCid: %s", err)
+	}
+	req, err := http.NewRequest("POST", "http://localhost:8080/ProviderRecord", bytes.NewReader(data))
+	if err != nil {
+		log.Errorf("Error creating POST request: %s", err)
+	}
+	// send the post request
+	_, err = http.DefaultClient.Do(req)
+	if err != nil {
+		log.Errorf("Error sending POST request: %s", err)
 	}
 
 	if error_count == new_config_instance.NumberOfCids {
