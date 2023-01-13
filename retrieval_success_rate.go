@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"retrieval-success-rate/config"
@@ -47,6 +48,14 @@ var run_optimistic_provide = &cli.Command{
 			Name:  "cid-number",
 			Usage: "number of cids to provide",
 		},
+		&cli.IntFlag{
+			Name:  "http-port",
+			Usage: "Http server port to post provider records",
+		},
+		&cli.StringFlag{
+			Name:  "http-hostname",
+			Usage: "Http server hostname to post provider records",
+		},
 	},
 }
 
@@ -75,6 +84,7 @@ func provide(Cctx *cli.Context) error {
 	log.Info("Starting the provide process")
 	new_config_instance, err := config.NewConfig(Cctx)
 
+	fmt.Println(new_config_instance)
 	file, err := config.ParseLogOutput("text-file")
 
 	if err != nil {
@@ -138,7 +148,9 @@ func provide(Cctx *cli.Context) error {
 	if err != nil {
 		log.Errorf("Error marshalling trackableCid: %s", err)
 	}
-	req, err := http.NewRequest("POST", "http://localhost:8080/ProviderRecord", bytes.NewReader(data))
+
+	requestLocation := fmt.Sprintf("http://%s:%d", new_config_instance.HttpServerHostname, new_config_instance.HttpServerPort)
+	req, err := http.NewRequest("POST", requestLocation, bytes.NewReader(data))
 	if err != nil {
 		log.Errorf("Error creating POST request: %s", err)
 	}
