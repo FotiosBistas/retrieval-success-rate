@@ -1,5 +1,5 @@
 # retrieval-success-rate
-This repository aims to track the retrieval success rate of the provider records using the Optimistic Provide algorithm proposed by [Dennis Trautwein](https://github.com/dennis-tra "dennis-tra"), using [Mikel Corte's](https://github.com/cortze "cortze") repository [IPFS CID HOARDER](https://github.com/cortze/ipfs-cid-hoarder "hoarder"). The ``go-libp2p-kad-dht`` submodules uses the ``ProvidersFile`` branch for all that work. 
+This repository aims to track the retrieval success rate of the provider records using the Optimistic Provide algorithm proposed by [Dennis Trautwein](https://github.com/dennis-tra "dennis-tra"), using [Mikel Corte's](https://github.com/cortze "cortze") repository [IPFS CID HOARDER](https://github.com/cortze/ipfs-cid-hoarder "hoarder"). The ``go-libp2p-kad-dht`` submodule uses the ``ProvidersFile`` branch for all the following workflow. 
 
 # How to run 
 Example run: 
