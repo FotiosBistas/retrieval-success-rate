@@ -11,7 +11,7 @@ Example run:
 
 If the sample size is small ( <= 1000 CIDs) the provider records are writen into a JSON file and inserted into the hoarder. The hoarder is then responsible for extracting the metadata from the JSON file, inserting the CIDs into the database and proceeding the ping them, gathering the necessary data to determine whether the Provider Records are retrievable. 
 
-## Published to HTTP server 
+## Publishing to HTTP server 
 
 If the cid-number is large (> 1000 CIDs) the HTTP server, inside the hoarder, is configured to listen to ``port:8080`` and the hoarder's ``localhost`` address. The publisher, using for example the address ``http://localhost:8080/`` connects to the server, and must use an HTTP ``POST`` method to send the CIDs to the server. The CIDs must follow the following format: 
 ```golang
