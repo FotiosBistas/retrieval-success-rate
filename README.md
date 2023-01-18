@@ -8,7 +8,7 @@ Example run:
 # Process 
 
 ## Provider Record format 
-
+```golang
 //A container for the encapsulated struct.
 //
 //File containts a json array of provider records.
